@@ -1,4 +1,5 @@
 # Reproducible Research: Peer Assessment 1
+# Rao Bethamcharla
 
 
 ## Loading and preprocessing the data
@@ -11,37 +12,52 @@ Nothing will be outputed from this section of code.
 
 Please make sure you are online if you don't have the data in place, or the code might fail downloading the required data. This part of code is tested only under Linux. You might need to modify the *method* parameter for the download.file() function to suit your system.
 
-```{r}
+
+```r
 
 dataURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 
 ### Download data
 if (file.exists("./activity.zip") || file.exists("./activity.csv")) {
-  message("== Data file (zip or csv format) exists, skipping downloading step \r")
-  
+    message("== Data file (zip or csv format) exists, skipping downloading step \r")
+    
 } else {
-
-  message("== Downloading data file...\r")
-  download.file(url=dataURL,destfile="./activity.zip",method="wget")
-  
+    
+    message("== Downloading data file...\r")
+    download.file(url = dataURL, destfile = "./activity.zip", method = "wget")
+    
 }
+```
+
+```
+## == Data file (zip or csv format) exists, skipping downloading step 
+```
+
+```r
 
 ### Extract data
 if (file.exists("./activity.csv")) {
-  message("== Data file (csv format) exists, skipping extraction...\r")
+    message("== Data file (csv format) exists, skipping extraction...\r")
 } else {
-  message("== Extracting data ... \r")
-  unzip(zipfile="./activity.zip",exdir="./",)  
+    message("== Extracting data ... \r")
+    unzip(zipfile = "./activity.zip", exdir = "./", )
 }
+```
+
+```
+## == Data file (csv format) exists, skipping extraction...
+```
+
+```r
 
 
 ### Load data
 data <- read.csv("./activity.csv")
 
-data$date <- as.Date(data$date,format="%Y-%m-%d")
+data$date <- as.Date(data$date, format = "%Y-%m-%d")
 data$interval <- as.factor(data$interval)
-
 ```
+
 
 ## What is mean total number of steps taken per day?
 
@@ -50,21 +66,26 @@ In this section, the raw data will be aggreated by date. For each day, the total
 A histogram is then generated showing the distrubution of the total number of steps taken each day (see Fig. 1). The mean and median total number of steps taken per day are also calculated and reported.
 
 
-```{r}
+
+```r
 
 library("plyr")
-dfPerDate <- ddply(data,~date,summarise,sumSteps=sum(steps,na.rm=TRUE),meanSteps=mean(steps,na.rm=TRUE),sdSteps=sd(steps,na.rm=TRUE))
+dfPerDate <- ddply(data, ~date, summarise, sumSteps = sum(steps, na.rm = TRUE), 
+    meanSteps = mean(steps, na.rm = TRUE), sdSteps = sd(steps, na.rm = TRUE))
 
-meanTotalStepsPerDay <- mean(dfPerDate$sumSteps,na.rm=TRUE)
-medianTotalStepsPerDay <- median(dfPerDate$sumSteps,na.rm=TRUE)
+meanTotalStepsPerDay <- mean(dfPerDate$sumSteps, na.rm = TRUE)
+medianTotalStepsPerDay <- median(dfPerDate$sumSteps, na.rm = TRUE)
 
-hist(dfPerDate$sumSteps,col="red", xlab="Daily Total Steps",main="Total number of steps taken each day",breaks=10)
-
+hist(dfPerDate$sumSteps, col = "red", xlab = "Daily Total Steps", main = "Total number of steps taken each day", 
+    breaks = 10)
 ```
+
+![plot of chunk unnamed-chunk-2](figure/plot1.png) 
+
 
 **Fig. 1:** Histogram of the total number of steps taken each day.
 
-The **mean** and **median** of total number of steps taken per day are **`r meanTotalStepsPerDay`** and **`r medianTotalStepsPerDay`**, respectively.
+The **mean** and **median** of total number of steps taken per day are **9354.2295** and **10395**, respectively.
 
 
 ## What is the average daily activity pattern?
@@ -73,18 +94,23 @@ In this section, the raw data is aggreated by intervals. For each interval, the 
 
 A time series plot (Fig. 2) showing the average number of steps taken per 5-minute interval across all days are generated. The interval with the maximum number of steps is also reported below. 
 
-```{r}
-dfPerInterval <- ddply(data,~interval,summarise,sumSteps=sum(steps,na.rm=TRUE),meanSteps=mean(steps,na.rm=TRUE),sdSteps=sd(steps,na.rm=TRUE))
+
+```r
+dfPerInterval <- ddply(data, ~interval, summarise, sumSteps = sum(steps, na.rm = TRUE), 
+    meanSteps = mean(steps, na.rm = TRUE), sdSteps = sd(steps, na.rm = TRUE))
 
 intervalWithMostSteps <- dfPerInterval$interval[dfPerInterval$meanSteps == max(dfPerInterval$meanSteps)]
 
-with(dfPerInterval, plot(interval,meanSteps, type = "l",xlab="Interval",ylab="Mean number of steps",main="Average number of steps taken per 5-min interval"))
-with(dfPerInterval, lines(interval,meanSteps))
-
+with(dfPerInterval, plot(interval, meanSteps, type = "l", xlab = "Interval", 
+    ylab = "Mean number of steps", main = "Average number of steps taken per 5-min interval"))
+with(dfPerInterval, lines(interval, meanSteps))
 ```
+
+![plot of chunk unnamed-chunk-3](figure/plot2.png) 
+
 **Fig. 2:** time series plot of the 5-minute interval and the average number of steps taken, averaged across all days.
 
-The interval "`r intervalWithMostSteps`"  contains the maximum number of steps.
+The interval "835"  contains the maximum number of steps.
 
 
 ## Imputing missing values
@@ -94,33 +120,40 @@ The main focus of this section is to impute the missing values in the raw datase
 A histogram similar to Fig.1 is then generated to show the distrubution of the total number of steps taken each day for the imputed data (see Fig. 3). The mean and median total number of steps taken per day for the imputed data are also calculated and reported.
 
 
-```{r}
+
+```r
 
 NumMissing <- sum(is.na(data$steps))
 
 # imputing data
 imputedData <- data
 
-# Replacing the missing values with the mean for that 5-minute interval across days
+# Replacing the missing values with the mean for that 5-minute interval
+# across days
 for (i in which(is.na(data$steps))) {
-  imputedData$steps[i] <- dfPerInterval$meanSteps[which(dfPerInterval$interval==imputedData$interval[i])]
+    imputedData$steps[i] <- dfPerInterval$meanSteps[which(dfPerInterval$interval == 
+        imputedData$interval[i])]
 }
 
-newdfPerDate <- ddply(imputedData,~date,summarise,sumSteps=sum(steps,na.rm=TRUE),meanSteps=mean(steps,na.rm=TRUE),sdSteps=sd(steps,na.rm=TRUE))
+newdfPerDate <- ddply(imputedData, ~date, summarise, sumSteps = sum(steps, na.rm = TRUE), 
+    meanSteps = mean(steps, na.rm = TRUE), sdSteps = sd(steps, na.rm = TRUE))
 
-newmeanTotalStepsPerDay <- mean(newdfPerDate$sumSteps,na.rm=TRUE)
-newmedianTotalStepsPerDay <- median(newdfPerDate$sumSteps,na.rm=TRUE)
+newmeanTotalStepsPerDay <- mean(newdfPerDate$sumSteps, na.rm = TRUE)
+newmedianTotalStepsPerDay <- median(newdfPerDate$sumSteps, na.rm = TRUE)
 
-hist(newdfPerDate$sumSteps,col="red", xlab="Daily Total Steps",main="Total steps per day -- Imputed data",breaks=10)
-
+hist(newdfPerDate$sumSteps, col = "red", xlab = "Daily Total Steps", main = "Total steps per day -- Imputed data", 
+    breaks = 10)
 ```
+
+![plot of chunk unnamed-chunk-4](figure/plot3.png) 
+
 
 **Fig. 3:** Histogram of the total number of steps taken daily for the imputed data.
 
-There are `r NumMissing` missing values in the dataset. The missing values were then replaced with the mean for that 5-minute interval across days.
+There are 2304 missing values in the dataset. The missing values were then replaced with the mean for that 5-minute interval across days.
 
 
-The **mean** and **median** of total number of steps taken per day are **`r newmeanTotalStepsPerDay`** and **`r newmedianTotalStepsPerDay`**, respectively.
+The **mean** and **median** of total number of steps taken per day are **1.0766 &times; 10<sup>4</sup>** and **1.0766 &times; 10<sup>4</sup>**, respectively.
 
 The mean and median of the total number of steps taken daily increased after data imputing.
 
@@ -130,33 +163,48 @@ In this section, the imputed data is subsetted into 2 groups by the date when th
 
 A panel plot is generated to show the activity pattern for weekdays and weekends(See Fig. 3).
 
-```{r}
+
+```r
 require(timeDate)
+```
+
+```
+## Loading required package: timeDate
+```
+
+```r
 
 imputedData$dayoftheweek <- as.factor(isWeekend(imputedData$date))
-levels(imputedData$dayoftheweek ) <- c("weekday","weekend")
+levels(imputedData$dayoftheweek) <- c("weekday", "weekend")
 
-newdf <- ddply(imputedData,dayoftheweek~interval,summarise,sumSteps=sum(steps,na.rm=TRUE),meanSteps=mean(steps,na.rm=TRUE),sdSteps=sd(steps,na.rm=TRUE))
+newdf <- ddply(imputedData, dayoftheweek ~ interval, summarise, sumSteps = sum(steps, 
+    na.rm = TRUE), meanSteps = mean(steps, na.rm = TRUE), sdSteps = sd(steps, 
+    na.rm = TRUE))
 
 # Sebsetting the dataset
-weekdaydata <- subset(newdf,dayoftheweek=="weekday")
-weekenddata <- subset(newdf,dayoftheweek=="weekend")
+weekdaydata <- subset(newdf, dayoftheweek == "weekday")
+weekenddata <- subset(newdf, dayoftheweek == "weekend")
 
 # generating the required plots
 
-par(mfrow=c(2,1))
+par(mfrow = c(2, 1))
 
-with(weekdaydata,plot(x=interval,y=meanSteps, type = "n",xlab="",ylab="Mean number of steps",main="Average number of steps taken per 5-min interval"))
+with(weekdaydata, plot(x = interval, y = meanSteps, type = "n", xlab = "", ylab = "Mean number of steps", 
+    main = "Average number of steps taken per 5-min interval"))
 
-with(weekdaydata, lines(interval,meanSteps,col="blue"))
+with(weekdaydata, lines(interval, meanSteps, col = "blue"))
 
-legend("topright",lty="solid",col = "blue",legend="weekday")
+legend("topright", lty = "solid", col = "blue", legend = "weekday")
 
-with(weekenddata,plot(x=interval,y=meanSteps, type = "n",xlab="interval",ylab="Mean number of steps",main=""))
+with(weekenddata, plot(x = interval, y = meanSteps, type = "n", xlab = "interval", 
+    ylab = "Mean number of steps", main = ""))
 
-with(weekenddata, lines(interval,meanSteps,col="red"))
-legend("topright",lty="solid",col = "red",legend="weekend")
+with(weekenddata, lines(interval, meanSteps, col = "red"))
+legend("topright", lty = "solid", col = "red", legend = "weekend")
 ```
+
+![plot of chunk unnamed-chunk-5](figure/plot4.png) 
+
 
 **Fig. 3:** Activity pattern for weekdays and weekends.
 
