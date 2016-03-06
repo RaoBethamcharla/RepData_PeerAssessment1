@@ -80,7 +80,7 @@ hist(dfPerDate$sumSteps, col = "red", xlab = "Daily Total Steps", main = "Total 
     breaks = 10)
 ```
 
-![plot of chunk unnamed-chunk-2](figure/plot1.png) 
+![plot of Total Number of Steps](figure/plot1.png) 
 
 
 **Fig. 1:** Histogram of the total number of steps taken each day.
@@ -106,7 +106,7 @@ with(dfPerInterval, plot(interval, meanSteps, type = "l", xlab = "Interval",
 with(dfPerInterval, lines(interval, meanSteps))
 ```
 
-![plot of chunk unnamed-chunk-3](figure/plot2.png) 
+![plot of avg number os steps](figure/plot2.png) 
 
 **Fig. 2:** time series plot of the 5-minute interval and the average number of steps taken, averaged across all days.
 
@@ -145,7 +145,7 @@ hist(newdfPerDate$sumSteps, col = "red", xlab = "Daily Total Steps", main = "Tot
     breaks = 10)
 ```
 
-![plot of chunk unnamed-chunk-4](figure/plot3.png) 
+![plot of steps taken daily](figure/plot3.png) 
 
 
 **Fig. 3:** Histogram of the total number of steps taken daily for the imputed data.
@@ -203,7 +203,7 @@ with(weekenddata, lines(interval, meanSteps, col = "red"))
 legend("topright", lty = "solid", col = "red", legend = "weekend")
 ```
 
-![plot of chunk unnamed-chunk-5](figure/plot4.png) 
+![plot of activity pattern for weekdays and weekends](figure/plot4.png) 
 
 
 **Fig. 3:** Activity pattern for weekdays and weekends.
